@@ -1,0 +1,4 @@
+- name: "Start libvirt service"
+  systemd:
+    name: "{{ services.libvirt }}"
+    state: started
