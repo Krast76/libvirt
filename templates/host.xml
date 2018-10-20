@@ -40,7 +40,9 @@
       <readonly/>
     </disk>
     <interface type="bridge">
+{% if item.mac is defined %}
       <mac address="{{ item.mac }}"/>
+{% endif %}
       <source bridge="br-int"/>
       <virtualport type='openvswitch'/>
     </interface>

@@ -1,25 +1,34 @@
+- name: Create host folder
+  file:
+    name: "{{ libvirt_image_dir }}/{{ item.name }}"
+    mode: 0755
+    owner: root
+    group: root
+    state: directory
+  with_items: "{{ libvirt_vms }}"
+
 - name: Create disk images
-  shell: "qemu-img create -f qcow2 -b {{ main_libvirt_image_base_dir }}/{{ item.image }}.qcow2 {{ main_libvirt_image_dir }}/{{ item.name }}/disk {{ item.size }}"
+  shell: "qemu-img create -f qcow2 -b {{ libvirt_image_base_dir }}/{{ item.image }}.qcow2 {{ libvirt_image_dir }}/{{ item.name }}/disk {{ item.size }}"
   args:
-    creates: "{{ main_libvirt_image_dir }}/{{ item.name }}/disk"
-  with_items: "{{ main_libvirt_hosts }}"
+    creates: "{{ libvirt_image_dir }}/{{ item.name }}/disk"
+  with_items: "{{ libvirt_vms }}"
 
 - name: Create additional disks
-  shell: "qemu-img create -f raw {{ main_libvirt_image_dir }}/{{ item.0.name }}/{{ item.1.name }} {{ item.1.size }}"
+  shell: "qemu-img create -f raw {{ libvirt_image_dir }}/{{ item.0.name }}/{{ item.1.name }} {{ item.1.size }}"
   args:
-    creates: "{{ main_libvirt_image_dir }}/{{ item.0.name }}/{{ item.1.name }}"
+    creates: "{{ libvirt_image_dir }}/{{ item.0.name }}/{{ item.1.name }}"
   with_subelements:
-    - "{{ main_libvirt_hosts }}"
+    - "{{ libvirt_vms }}"
     - disks
 
 - name: Create user-data
   template:
     src: user-data
-    dest: "{{ main_libvirt_image_dir }}/{{ item.name }}/user-data"
+    dest: "{{ libvirt_image_dir }}/{{ item.name }}/user-data"
     mode: 0644
     owner: root
     group: root
-  with_items: "{{ main_libvirt_hosts }}"
+  with_items: "{{ libvirt_vms }}"
   register: user_data_updated
   tags:
     - user-data
@@ -27,28 +36,28 @@
 - name: Create meta-data
   template:
     src: meta-data
-    dest: "{{ main_libvirt_image_dir }}/{{ item.name }}/meta-data"
+    dest: "{{ libvirt_image_dir }}/{{ item.name }}/meta-data"
     mode: 0644
     owner: root
     group: root
-  with_items: "{{ main_libvirt_hosts }}"
+  with_items: "{{ libvirt_vms }}"
   register: meta_data_updated
 
 - name: Generate cloudconfig iso
-  shell: "genisoimage -output {{ main_libvirt_image_dir }}/{{ item.name }}/cloudconfig.iso -volid cidata -joliet -r {{ main_libvirt_image_dir }}/{{ item.name }}/user-data {{ main_libvirt_image_dir }}/{{ item.name }}/meta-data &>> {{ main_libvirt_image_dir }}/{{ item.name }}/cloudconfig.log"
+  shell: "genisoimage -output {{ libvirt_image_dir }}/{{ item.name }}/cloudconfig.iso -volid cidata -joliet -r {{ libvirt_image_dir }}/{{ item.name }}/user-data {{ libvirt_image_dir }}/{{ item.name }}/meta-data &>> {{ libvirt_image_dir }}/{{ item.name }}/cloudconfig.log"
   when: (user_data_updated | changed) and (meta_data_updated | changed)
-  with_items: "{{ main_libvirt_hosts }}"
+  with_items: "{{ libvirt_vms }}"
 
 - name: Define host
   virt:
     name: "{{ item.name }}"
     command: define
     xml: "{{ lookup('template', 'host.xml') }}"
-  with_items: "{{ main_libvirt_hosts }}"
+  with_items: "{{ libvirt_vms }}"
 
 - name: Start host
   virt:
     name: "{{ item.name }}"
     state: running
-  with_items: "{{ main_libvirt_hosts }}"
+  with_items: "{{ libvirt_vms }}"
 

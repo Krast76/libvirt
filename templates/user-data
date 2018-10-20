@@ -3,7 +3,7 @@
 # Hostname management
 preserve_hostname: False
 hostname: {{ item.name }}
-fqdn: {{ item.name }}.fydrah.local
+fqdn: {{ item.name }}.{% if domain_name %}{{ domain_name }}{% endif %}
 
 runcmd:
   - [ systemctl, status, network ]
@@ -14,7 +14,7 @@ output:
   all: ">> /var/log/cloud-init.log"
 
 # configure interaction with ssh server
-{% if vms_ssh_keys | lenght() > 0 %}
+{% if vms_ssh_keys | length() > 0 %}
 ssh_svcname: ssh
 ssh_deletekeys: True
 ssh_genkeytypes: ['rsa', 'ecdsa']
