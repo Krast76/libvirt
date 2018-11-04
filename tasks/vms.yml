@@ -1,4 +1,4 @@
-- name: Create host folder
+- name: "Create host folder"
   file:
     name: "{{ libvirt_image_dir }}/{{ item.name }}"
     mode: 0755
@@ -7,13 +7,13 @@
     state: directory
   with_items: "{{ libvirt_vms }}"
 
-- name: Create disk images
+- name: "Create disk images"
   shell: "qemu-img create -f qcow2 -b {{ libvirt_image_base_dir }}/{{ item.image }}.qcow2 {{ libvirt_image_dir }}/{{ item.name }}/disk {{ item.size }}"
   args:
     creates: "{{ libvirt_image_dir }}/{{ item.name }}/disk"
   with_items: "{{ libvirt_vms }}"
 
-- name: Create additional disks
+- name: "Create additional disks"
   shell: "qemu-img create -f raw {{ libvirt_image_dir }}/{{ item.0.name }}/{{ item.1.name }} {{ item.1.size }}"
   args:
     creates: "{{ libvirt_image_dir }}/{{ item.0.name }}/{{ item.1.name }}"
@@ -21,7 +21,7 @@
     - "{{ libvirt_vms }}"
     - disks
 
-- name: Create user-data
+- name: "Create user-data"
   template:
     src: user-data
     dest: "{{ libvirt_image_dir }}/{{ item.name }}/user-data"
@@ -33,7 +33,7 @@
   tags:
     - user-data
 
-- name: Create meta-data
+- name: "Create meta-data"
   template:
     src: meta-data
     dest: "{{ libvirt_image_dir }}/{{ item.name }}/meta-data"
@@ -43,21 +43,31 @@
   with_items: "{{ libvirt_vms }}"
   register: meta_data_updated
 
-- name: Generate cloudconfig iso
+- name: "Generate cloudconfig iso"
   shell: "genisoimage -output {{ libvirt_image_dir }}/{{ item.name }}/cloudconfig.iso -volid cidata -joliet -r {{ libvirt_image_dir }}/{{ item.name }}/user-data {{ libvirt_image_dir }}/{{ item.name }}/meta-data &>> {{ libvirt_image_dir }}/{{ item.name }}/cloudconfig.log"
   when: (user_data_updated | changed) and (meta_data_updated | changed)
   with_items: "{{ libvirt_vms }}"
 
-- name: Define host
+- name: "Define host"
   virt:
     name: "{{ item.name }}"
     command: define
     xml: "{{ lookup('template', 'host.xml') }}"
   with_items: "{{ libvirt_vms }}"
 
-- name: Start host
+- name: "Manage host life cycle"
   virt:
     name: "{{ item.name }}"
-    state: running
+    state: "{{ item.state | default('running') }}"
   with_items: "{{ libvirt_vms }}"
 
+- name: "Delete host folder"
+  file:
+    name: "{{ libvirt_image_dir }}/{{ item.name }}"
+    mode: 0755
+    owner: root
+    group: root
+    state: directory
+  when: item.state == "destroyed"
+  with_items: "{{ libvirt_vms }}"
+ 
