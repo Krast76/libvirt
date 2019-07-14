@@ -6,6 +6,7 @@ packages:
   - libvirt-client
   - virt-install
   - virt-viewer
+  - virt-top
   - genisoimage
 services:
   libvirt: libvirtd
