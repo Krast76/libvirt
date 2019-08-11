@@ -1,5 +1,7 @@
 - include_vars: "{{ ansible_os_family }}.yml"
 - include_tasks: install.yml
 - include_tasks: configure.yml
-- include_tasks: vms.yml
+- include_tasks: create_vms.yml
+  when: item.state != "destroyed"
+  with_items: "{{ libvirt_vms }}"
   when: (libvirt_vms|length > 0) and autocreate_vms
