@@ -33,6 +33,13 @@
       <target dev="{{ disk.dev_target }}" bus="virtio"/>
     </disk>
 {% endfor %}
+{% for disk in vm.passthrought_disk %}
+    <disk type='block' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source dev='{{ disk.host_path }}'/>
+      <target dev='{{ disk.guest_dev_name }}' bus='virtio'/>
+    </disk>
+{% endfor %}
     <disk type="file" device="cdrom">
       <driver name="qemu" type="raw"/>
       <source file="{{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.iso"/>
