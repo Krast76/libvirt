@@ -1,0 +1,18 @@
+- name: Destroye host
+  virt:
+    name: "{{ item.name }}"
+    state: destroyed
+
+- name: Undefine host
+  virt:
+    name: "{{ item.name }}"
+    command: undefine
+
+- name:  Delete host folder
+  file:
+    name: "{{ libvirt_image_dir }}/{{ item.name }}"
+    mode: 0755
+    owner: root
+    group: root
+    state: absent
+

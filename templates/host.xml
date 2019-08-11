@@ -1,8 +1,8 @@
 <domain type="kvm">
-  <name>{{ item.name }}</name>
-  <memory unit='MiB'>{{ item.ram }}</memory>
-  <currentMemory unit='MiB'>{{ item.ram }}</currentMemory>
-  <vcpu>{{ item.cpu }}</vcpu>
+  <name>{{ vm.name }}</name>
+  <memory unit='MiB'>{{ vm.ram }}</memory>
+  <currentMemory unit='MiB'>{{ vm.ram }}</currentMemory>
+  <vcpu>{{ vm.cpu }}</vcpu>
   <os>
     <type arch="x86_64">hvm</type>
     <boot dev="hd"/>
@@ -23,31 +23,31 @@
   <devices>
     <disk type="file" device="disk">
       <driver name="qemu" type="qcow2"/>
-      <source file="{{ libvirt_image_dir }}/{{ item.name }}/disk"/>
+      <source file="{{ libvirt_image_dir }}/{{ vm.name }}/disk"/>
       <target dev="vda" bus="virtio"/>
     </disk>
-{% for disk in item.disks %}
+{% for disk in vm.disks %}
     <disk type="file" device="disk">
       <driver name="qemu" type="raw"/>
-      <source file="{{ libvirt_image_dir }}/{{ item.name }}/{{ disk.name }}"/>
+      <source file="{{ libvirt_image_dir }}/{{ vm.name }}/{{ disk.name }}"/>
       <target dev="{{ disk.dev_target }}" bus="virtio"/>
     </disk>
 {% endfor %}
     <disk type="file" device="cdrom">
       <driver name="qemu" type="raw"/>
-      <source file="{{ libvirt_image_dir }}/{{ item.name }}/cloudconfig.iso"/>
+      <source file="{{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.iso"/>
       <target dev="hda" bus="ide"/>
       <readonly/>
     </disk>
     <interface type="bridge">
-{% if item.mac is defined %}
-      <mac address="{{ item.mac }}"/>
+{% if vm.mac is defined %}
+      <mac address="{{ vm.mac }}"/>
 {% endif %}
       <source bridge="br-int"/>
       <virtualport type='openvswitch'/>
     </interface>
     <serial type='file'>
-      <source path='{{ libvirt_image_dir }}/{{ item.name }}/console.log'/>
+      <source path='{{ libvirt_image_dir }}/{{ vm.name }}/console.log'/>
       <target type='isa-serial' port='0'>
         <model name='isa-serial'/>
       </target>
@@ -58,7 +58,7 @@
       </target>
     </serial>
     <console type='file'>
-      <source path='{{ libvirt_image_dir }}/{{ item.name }}/console.log'/>
+      <source path='{{ libvirt_image_dir }}/{{ vm.name }}/console.log'/>
       <target type='serial' port='0'/>
     </console>
     <graphics type="vnc" port="-1"/>

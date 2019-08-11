@@ -2,8 +2,8 @@
 
 # Hostname management
 preserve_hostname: False
-hostname: {{ item.name }}
-fqdn: {{ item.name }}.{% if domain_name %}{{ domain_name }}{% endif %}
+hostname: {{ vm.name }}
+fqdn: {{ vm.name }}.{% if domain_name %}{{ domain_name }}{% endif %}
 
 runcmd:
   - [ systemctl, status, network ]

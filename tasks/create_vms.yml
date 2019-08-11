@@ -1,28 +1,26 @@
 - name: Create host folder
   file:
-    name: "{{ libvirt_image_dir }}/{{ item.name }}"
+    name: "{{ libvirt_image_dir }}/{{ vm.name }}"
     mode: 0755
     owner: root
     group: root
     state: directory
 
 - name: Create disk images
-  shell: "qemu-img create -f qcow2 -b {{ libvirt_image_base_dir }}/{{ item.image }}.qcow2 {{ libvirt_image_dir }}/{{ item.name }}/disk {{ item.size }}"
+  shell: "qemu-img create -f qcow2 -b {{ libvirt_image_base_dir }}/{{ vm.image }}.qcow2 {{ libvirt_image_dir }}/{{ vm.name }}/disk {{ vm.size }}"
   args:
-    creates: "{{ libvirt_image_dir }}/{{ item.name }}/disk"
+    creates: "{{ libvirt_image_dir }}/{{ vm.name }}/disk"
 
 - name: Create additional disks
-  shell: "qemu-img create -f raw {{ libvirt_image_dir }}/{{ item.0.name }}/{{ item.1.name }} {{ item.1.size }}"
+  shell: "qemu-img create -f raw {{ libvirt_image_dir }}/{{ vm.name }}/{{ item.name }} {{ item.size }}"
   args:
-    creates: "{{ libvirt_image_dir }}/{{ item.0.name }}/{{ item.1.name }}"
-  with_subelements:
-    - "{{ libvirt_vms }}"
-    - disks
+    creates: "{{ libvirt_image_dir }}/{{ vm.name }}/{{ item.name }}"
+  with_items: "{{ vm.disks }}"
 
 - name: Create user-data
   template:
     src: user-data
-    dest: "{{ libvirt_image_dir }}/{{ item.name }}/user-data"
+    dest: "{{ libvirt_image_dir }}/{{ vm.name }}/user-data"
     mode: 0644
     owner: root
     group: root
@@ -33,24 +31,24 @@
 - name: Create meta-data
   template:
     src: meta-data
-    dest: "{{ libvirt_image_dir }}/{{ item.name }}/meta-data"
+    dest: "{{ libvirt_image_dir }}/{{ vm.name }}/meta-data"
     mode: 0644
     owner: root
     group: root
   register: meta_data_updated
 
 - name: Generate cloudconfig iso
-  shell: "genisoimage -output {{ libvirt_image_dir }}/{{ item.name }}/cloudconfig.iso -volid cidata -joliet -r {{ libvirt_image_dir }}/{{ item.name }}/user-data {{ libvirt_image_dir }}/{{ item.name }}/meta-data &>> {{ libvirt_image_dir }}/{{ item.name }}/cloudconfig.log"
+  shell: "genisoimage -output {{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.iso -volid cidata -joliet -r {{ libvirt_image_dir }}/{{ vm.name }}/user-data {{ libvirt_image_dir }}/{{ vm.name }}/meta-data &>> {{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.log"
   when: (user_data_updated | changed) and (meta_data_updated | changed)
 
 - name: Define host
   virt:
-    name: "{{ item.name }}"
+    name: "{{ vm.name }}"
     command: define
     xml: "{{ lookup('template', 'host.xml') }}"
 
 - name: Start host
   virt:
-    name: "{{ item.name }}"
+    name: "{{ vm.name }}"
     state: running
 
