@@ -1,7 +1,7 @@
 instance-id: {{ vm.name }}
 network-interfaces: |
-  auto eth0
-  iface eth0 inet static
+  auto {{ vm.interface | default('eth0') }}
+  iface {{ vm.interface | default('eth0') }} inet static
   address {{ vm.ip | ipaddr('address') }}
   network {{ vm.ip | ipaddr('network') }}
   netmask {{ vm.ip | ipaddr('netmask') }}
