@@ -8,5 +8,6 @@ packages:
   - virt-viewer
   - virt-top
   - genisoimage
+  - libguestfs-tools
 services:
   libvirt: libvirtd
