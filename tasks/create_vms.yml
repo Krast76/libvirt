@@ -39,7 +39,7 @@
 
 - name: Generate cloudconfig iso
   shell: "genisoimage -output {{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.iso -volid cidata -joliet -r {{ libvirt_image_dir }}/{{ vm.name }}/user-data {{ libvirt_image_dir }}/{{ vm.name }}/meta-data &>> {{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.log"
-  when: (user_data_updated | changed) and (meta_data_updated | changed)
+  when: (user_data_updated is changed) and (meta_data_updated is changed)
 
 - name: Define host
   virt:
