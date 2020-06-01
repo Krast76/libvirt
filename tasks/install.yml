@@ -4,3 +4,12 @@
     state: present
   with_items:
     - "{{ packages }}"
+
+- name: "Check virt capabilities"
+  shell: "virt-host-validate -q"
+  register: virt_host_validate
+
+- assert:
+  that:
+    - virt_host_validate virt_host_validate.rc == 0
+  when: disable_checks is False
