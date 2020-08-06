@@ -4,6 +4,11 @@
 
 - include_tasks: configure.yml
 
+- include_tasks: create_networks.yml
+  loop: "{{ libvirt_networks }}"
+  loop_control:
+    loop_var: network
+
 - include_tasks: create_vms.yml
   loop: "{{ libvirt_vms }}"
   loop_control:
@@ -14,3 +19,9 @@
   when: item.state = "destroyed"
   with_items: "{{ libvirt_vms }}"
   when: item.state == "destroyed" and (libvirt_vms|length > 0)
+
+- include_tasks: destroy_networks.yml
+  when: item.state = "destroyed"
+  with_items: "{{ libvirt_networks }}"
+  when: item.state == "destroyed"
+

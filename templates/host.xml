@@ -46,6 +46,14 @@
       <source bridge="br-int"/>
       <virtualport type='openvswitch'/>
     </interface>
+{% for network in vm.networks | default([]) %}
+    <interface type='network'>
+{% if network.mac is defined %}
+      <mac address="{{ network.mac }}"/>
+{% endif %}
+      <source network='{{ network.name }}' {% if network.portgroup is defined %}portgroup={{ network.portgroup }}{% endif %} />
+    </interface>
+{% endfor %}
     <serial type='file'>
       <source path='{{ libvirt_image_dir }}/{{ vm.name }}/console.log'/>
       <target type='isa-serial' port='0'>

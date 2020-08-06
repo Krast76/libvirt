@@ -4,12 +4,23 @@
     state: present
   with_items:
     - "{{ packages }}"
+- block:
+    - name: "Check virt capabilities"
+      shell: "virt-host-validate -q"
+      register: virt_host_validate
+    
+    - assert:
+        that:
+          - virt_host_validate.rc == 0
+  when: disable_checks == False
 
-- name: "Check virt capabilities"
-  shell: "virt-host-validate -q"
-  register: virt_host_validate
-
-- assert:
-  that:
-    - virt_host_validate virt_host_validate.rc == 0
-  when: disable_checks is False
+- block:
+    - name: "Disable default network"
+      virt_net:
+        name: default
+        state: inactive
+    - name: "Destroy default network"
+      virt_net:
+        name: default
+        state: absent
+  when: disable_default_network == true

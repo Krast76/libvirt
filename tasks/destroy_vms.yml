@@ -1,4 +1,4 @@
-- name: Destroye host
+- name: Destroy host
   virt:
     name: "{{ item.name }}"
     state: destroyed

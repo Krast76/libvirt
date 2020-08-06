@@ -1,0 +1,15 @@
+<network>
+  <name>{{ network.name }}</name>
+  <forward mode='bridge'/>
+  <bridge name='{{ network.bridge }}' />
+  <virtualport type='{{ network.type }}'/>
+{% for portgroup in network.portgroups %}
+  <portgroup name='{{ portgroup.name }}' {% if portgroup.default | default(False) %}default='yes'{% endif %}>
+    <vlan {% if portgroup.trunk | default(False) %}default='yes'{% endif %}>
+{% for vlan in portgroup.vlans %}
+    <tag id='{{ vlan }}'/>
+{% endfor %}
+    </vlan>
+{% endfor %}
+  </portgroup>
+</network>

@@ -2,5 +2,7 @@ libvirt_image_dir: "/var/lib/libvirt/images"
 libvirt_image_base_dir: "{{ libvirt_image_dir }}/_base"
 autocreate_vms: False
 skip_checks: False
+disable_default_network: True
 libvirt_vms: []
+libvirt_networks: []
 vms_ssh_keys: []

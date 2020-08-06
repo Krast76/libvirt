@@ -1,0 +1,10 @@
+- name: Destroy network
+  virt_net: 
+    name: "{{ item.name }}"
+    state: inactive
+
+- name: Destroy network
+  virt_net: 
+    name: "{{ item.name }}"
+    state: absent
+

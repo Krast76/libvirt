@@ -1,0 +1,10 @@
+- name: Define network
+  virt_net:
+    name: "{{ network.name }}"
+    command: define
+    xml: "{{ lookup('template', 'network.xml') }}"
+
+- name: Start network
+  virt_net:
+    name: "{{ network.name }}"
+    state: active
