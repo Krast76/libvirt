@@ -37,8 +37,17 @@
     group: root
   register: meta_data_updated
 
+- name: Create network-config
+  template:
+    src: network-config
+    dest: "{{ libvirt_image_dir }}/{{ vm.name }}/network-config"
+    mode: 0644
+    owner: root
+    group: root
+  when: vm.network_configs is defined
+
 - name: Generate cloudconfig iso
-  shell: "genisoimage -output {{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.iso -volid cidata -joliet -r {{ libvirt_image_dir }}/{{ vm.name }}/user-data {{ libvirt_image_dir }}/{{ vm.name }}/meta-data &>> {{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.log"
+  shell: "genisoimage -output {{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.iso -volid cidata -joliet -r {{ libvirt_image_dir }}/{{ vm.name }}/user-data {{ libvirt_image_dir }}/{{ vm.name }}/meta-data {% if vm.network_configs is defined %}{{ libvirt_image_dir }}/{{ vm.name }}/network-config{% endif %} &>> {{ libvirt_image_dir }}/{{ vm.name }}/cloudconfig.log"
   when: (user_data_updated is changed) and (meta_data_updated is changed)
 
 - name: Define host

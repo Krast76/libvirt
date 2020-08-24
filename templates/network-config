@@ -1,0 +1,18 @@
+#jinja2: trim_blocks:False
+---
+network:
+  version: 1
+  config:
+{% for config in vm.network_configs %}
+  - type: {{ config.type }}
+    name: {{ config.interface }}
+    {% if config.mac is defined %}mac_address: {{ config.mac }}{% endif %}
+    subnets:
+{% for subnet in config.subnets %}
+      - type: {{ subnet.type | default('static') }}
+        control: auto
+        address: {{ subnet.address }}
+        netmask: {{ subnet.netmask }}
+        {% if subnet.gateway is defined %}gateway: {{ subnet.gateway }}{% endif %}
+{% endfor %}    
+{% endfor %}

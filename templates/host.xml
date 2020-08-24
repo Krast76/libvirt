@@ -39,13 +39,15 @@
       <target dev="hda" bus="ide"/>
       <readonly/>
     </disk>
+{% for port in vm.ports | default([]) %}
     <interface type="bridge">
-{% if vm.mac is defined %}
-      <mac address="{{ vm.mac }}"/>
+{% if port.mac is defined %}
+      <mac address="{{ port.mac }}"/>
 {% endif %}
-      <source bridge="br-int"/>
-      <virtualport type='openvswitch'/>
+      <source bridge="{{ port.bridge }}"/>
+      <virtualport type='{{ port.type }}'/>
     </interface>
+{% endfor %}
 {% for network in vm.networks | default([]) %}
     <interface type='network'>
 {% if network.mac is defined %}

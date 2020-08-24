@@ -1,4 +1,6 @@
+dsmode: local
 instance-id: {{ vm.name }}
+{% if vm.network_configs is not defined %}
 network-interfaces: |
   auto {{ vm.interface | default('eth0') }}
   iface {{ vm.interface | default('eth0') }} inet static
@@ -9,4 +11,5 @@ network-interfaces: |
   gateway {{ vm.ip | ipaddr('1') | ipaddr('address') }}
   dns-nameservers {{ vm.dns }}
   up route add default gw {{ vm.ip | ipaddr('1') | ipaddr('address') }}
+{% endif %}
 local-hostname: {{ vm.name }}
