@@ -16,12 +16,10 @@
   when: vm.state != "destroyed" and (libvirt_vms|length > 0) and autocreate_vms
 
 - include_tasks: destroy_vms.yml
-  when: item.state = "destroyed"
   with_items: "{{ libvirt_vms }}"
   when: item.state == "destroyed" and (libvirt_vms|length > 0)
 
 - include_tasks: destroy_networks.yml
-  when: item.state = "destroyed"
   with_items: "{{ libvirt_networks }}"
   when: item.state == "destroyed"
 

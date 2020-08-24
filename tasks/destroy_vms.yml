@@ -1,12 +1,19 @@
+- name: Get all VMs
+  virt:
+    command: list_vms
+  register: list_vms
+
 - name: Destroy host
   virt:
     name: "{{ item.name }}"
     state: destroyed
+  when: item.name in list_vms.list_vms
 
 - name: Undefine host
   virt:
     name: "{{ item.name }}"
     command: undefine
+  when: item.name in list_vms.list_vms
 
 - name:  Delete host folder
   file:
