@@ -21,6 +21,7 @@ Comming soon
 | Distribution | Supported | Tested |
 | ------------ | --------- | ------ |
 | CentOS 7     |   Yes     | Manually|
+| CentOS 8     |   Yes     | Manually|
 | Ubuntu       |   No      |   No   |
 | Archlinux    |   No      |   No   |
 
