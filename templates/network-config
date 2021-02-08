@@ -14,5 +14,11 @@ network:
         address: {{ subnet.address }}
         netmask: {{ subnet.netmask }}
         {% if subnet.gateway is defined %}gateway: {{ subnet.gateway }}{% endif %}
+        {% if subnet.nameservers is defined%}
+        dns_nameservers:
+        {% for nameserver in subnet.nameservers %}
+          - {{ nameserver }}
+        {% endfor %}
+        {% endif %}
 {% endfor %}    
 {% endfor %}
